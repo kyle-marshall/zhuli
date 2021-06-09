@@ -4,13 +4,19 @@ import { TaskNode } from "./types.d.ts";
 import { isNullOrEmpty } from "./util.ts";
 import { globals } from "./zhuli.ts";
 
+// I am doing what everyone [understandably] tells you not to do:
+// I'm modifying the behaviour of objects I don't own!
+// specifically I'm altering console.log and Deno.stdout.writeSync
+// so that they begin each line with variable length pipe-character padding
+
+// store references to the original functions
+
 const originalLog = console.log;
+// need to bind writeSync to stdout if we want to be able to use it later
 const originalWriteSync = Deno.stdout.writeSync.bind(Deno.stdout);
 
 const setConsoleLogDepth = (depth: number) => {
-    let pad = "";
-    let d = depth;
-    while (d--) pad += "|";
+    const pad = "".padStart(depth, "|");
     const padBytes = new TextEncoder().encode(pad);
     console.log = function(){
         originalWriteSync(padBytes);
@@ -19,13 +25,12 @@ const setConsoleLogDepth = (depth: number) => {
 };
 
 const setWriteSyncDepth = (depth: number) => {
-    let pad = "";
-    let d = depth;
-    while (d--) pad += "|";
+    const pad = "".padStart(depth, "|");
     const padBytes = new TextEncoder().encode(pad);
-    const newWrite = function(p: Uint8Array){
-        const pp = new Uint8Array([...padBytes, ...p]);
-        return originalWriteSync(pp);
+    const newWrite = function(messageBytes: Uint8Array){
+        const p = originalWriteSync(padBytes);
+        const m = originalWriteSync(messageBytes);
+        return p + m;
     };
     Deno.stdout.writeSync = newWrite;
 };
