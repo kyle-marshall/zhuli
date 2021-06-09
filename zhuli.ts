@@ -1,7 +1,6 @@
 import { Colors, Handlebars, path, exists } from "./deps.ts";
 import { InputParams, TaskNode } from "./types.d.ts";
 import { doTask } from "./task.ts";
-
 import taskHelpers from "./task-helpers.ts";
 
 Object.assign(window, taskHelpers);
@@ -68,13 +67,11 @@ async function zhuli(presetName: string, argsOrObj: string[] | InputParams) {
     const mod = await tseval(code) as { context: Record<string, unknown>; };
     pluginContext = mod.context as Record<string, unknown>;
   }
+  Object.assign(window, pluginContext);
 
   var _;
   const js = "_ = " + await readTemplate(configPath, context);
-  Object.assign(window, pluginContext);
-  var config: TaskNode | null = eval(js);
-
-  const main = (config as unknown as TaskNode);
+  const main: TaskNode = eval(js);
   main.label = presetName;
 
   if (Array.isArray(argsOrObj)) {
