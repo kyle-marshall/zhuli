@@ -31,7 +31,7 @@ const readTemplate = async (templatePath: string, context: unknown) => {
   return template(context);
 };
 
-function tseval (code: string): Promise<any> {
+function tseval (code: string): Promise<unknown> {
   return import('data:application/javascript,' + encodeURIComponent(code));
 }
 
@@ -60,13 +60,13 @@ async function zhuli(presetName: string, argsOrObj: string[] | InputParams) {
     presetName,
   };
 
-  let pluginContext = null;
+  let pluginContext: Record<string, unknown> | null = null;
   if (await exists(contextPath)) {
         const code = `
         export { context } from "file://${contextPath}";
     `;
-    const mod = await tseval(code);
-    pluginContext = mod.context;
+    const mod = await tseval(code) as { context: Record<string, unknown>; };
+    pluginContext = mod.context as Record<string, unknown>;
   }
 
   var _;

@@ -211,4 +211,4 @@ functions exposed to the global scope for your zhuli tasks:
 exposing your own functions to the global scope:
 - you can do this by defining a `context.ts` file in your preset directory. 
 - You should have one named export called `context` within your `context.ts` file
-- any properties of `context` will be available in the global scope for your task tree functions
+- all properties of `context` will be available in the global scope for your task tree functions
