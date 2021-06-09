@@ -30,7 +30,7 @@ const readTemplate = async (templatePath: string, context: unknown) => {
   return template(context);
 };
 
-function tseval (code: string): Promise<unknown> {
+function tseval(code: string): Promise<unknown> {
   return import('data:application/javascript,' + encodeURIComponent(code));
 }
 
@@ -51,26 +51,31 @@ async function zhuli(presetName: string, argsOrObj: string[] | InputParams) {
   }
 
   const cwd = Deno.cwd();
-  const cwdName = path.basename(cwd);
-
-  const context = {
-    cwdName,
+  // parameters used to fill in the task.hbr template
+  const templateContext = {
+    cwd,
+    cwdName: path.basename(cwd),
     templateDirPath,
     presetName,
   };
 
-  let pluginContext: Record<string, unknown> | null = null;
+  // some presets may specify a context file
+  // if used, this file should export an object named context
+  let presetContext: Record<string, unknown> | null = null;
   if (await exists(contextPath)) {
-        const code = `
+    const code = `
         export { context } from "file://${contextPath}";
     `;
     const mod = await tseval(code) as { context: Record<string, unknown>; };
-    pluginContext = mod.context as Record<string, unknown>;
+    presetContext = mod.context as Record<string, unknown>;
   }
-  Object.assign(window, pluginContext);
+  Object.assign(window, presetContext);
 
+  // eval dark magic, prefixing the object with "_=" makes eval happy,
+  // and the entire statement returns an object since a js assignment expression
+  // returns the assigned value, e.g. you can do things like: a = b = c = 4
   var _;
-  const js = "_ = " + await readTemplate(configPath, context);
+  const js = "_ = " + await readTemplate(configPath, templateContext);
   const main: TaskNode = eval(js);
   main.label = presetName;
 
