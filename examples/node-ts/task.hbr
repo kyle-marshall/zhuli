@@ -1,0 +1,39 @@
+{
+    description: "Create a new node+TypeScript project 📝",
+    inputMeta: {
+        properties: [
+            {
+                name: "projectName",
+                display: "Project Name",
+                default: "{{cwdName}}"
+            }
+        ]
+    },
+    tasks: [
+        {
+            description: "Create package file",
+            fn: async function() {
+                const templatePath = path.join("{{templateDirPath}}", "package.json.hbr");
+                await forgeFile(templatePath, "package.json", this.parent.input);
+            }
+        },
+        {
+            fn: async function() {
+                await zhuli("basic-tsconfig", {strict: true});
+            }
+        },
+        {
+            description: "Install node packages",
+            fn: async function() {
+                const cmdTokens = "npm install -D jest typescript ts-jest @types/jest".split(" ");
+                await exec(cmdTokens);
+            }
+        },
+        {
+            description: "Create source files",
+            fn: async function() {
+                await copyDirectoryContents(path.join("{{templateDirPath}}", "bones"));
+            }
+        }
+    ]
+}

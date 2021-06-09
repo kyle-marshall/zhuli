@@ -1,0 +1,13 @@
+{
+    description: "Create tsconfig file",
+    inputMeta: {
+        properties: [
+            { name: "strict", display: "Strict mode?", type: "boolean", default: true }
+        ]
+    },
+    fn: async function() {
+        const templatePath = path.join("{{templateDirPath}}", "tsconfig.json.hbr");
+        const text = await readTemplate(templatePath, this.input);
+        await Deno.writeTextFile("tsconfig.json", text);
+    }
+}

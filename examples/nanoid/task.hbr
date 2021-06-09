@@ -1,0 +1,15 @@
+{
+    description: "generate nanoid",
+    inputMeta: {
+        properties: [
+            { name: "howMany", display: "How Many?", type: "number", default: 1 },
+            { name: "length", display: "Length?", type: "number", default: 21 }
+        ]
+    },
+    fn: async function() {
+        const { howMany, length } = this.input;
+        for(let i=0; i<howMany; i++){
+            console.log(nanoid(length));
+        }
+    }
+}
