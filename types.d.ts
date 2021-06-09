@@ -13,8 +13,8 @@ export type InputParams = Record<string, unknown>;
 
 export interface TaskNode {
     args?: string[];
-    parent: TaskNode | null;
-    label: string;
+    parent?: TaskNode | null;
+    label?: string;
     description?: string;
     inputMeta?: ObjectMeta;
     input?: InputParams;

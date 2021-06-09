@@ -1,17 +1,21 @@
 import * as path from "https://deno.land/std@0.97.0/path/mod.ts";
-import { exists } from "https://deno.land/std@0.97.0/fs/mod.ts";
+import { exists as _exists } from "https://deno.land/std@0.97.0/fs/mod.ts";
 import * as Colors from "https://deno.land/std@0.97.0/fmt/colors.ts";
 import Handlebars from "https://cdn.skypack.dev/handlebars@4.7.7";
 import { InputParams, TaskNode } from "./types.d.ts";
 import { doTask } from "./task.ts";
 import { walk as _walk } from "https://deno.land/std@0.97.0/fs/mod.ts";
 
+var exists = _exists;
 var walk = _walk;
 
 const PROGRAM_NAME = "zhuli";
 const APP_DATA_DIRECTORY_NAME = ".zhuli";
+const TASK_FN = "task.hbr";
+const CONTEXT_FN = "context.ts";
+const PRESET_DIR_NAME = "presets";
 
-const usage = `${PROGRAM_NAME} <template-name>`;
+const usage = `${PROGRAM_NAME} <preset-name>`;
 
 const args = Deno.args;
 if (args.length < 1) {
@@ -79,15 +83,15 @@ function tseval (code: string): Promise<any> {
   return import('data:application/javascript,' + encodeURIComponent(code));
 }
 
-async function zhuli(templateName: string, argsOrObj: string[] | InputParams) {
+async function zhuli(presetName: string, argsOrObj: string[] | InputParams) {
   const ZHULI_DIR = path.join(
     Deno.env.get("HOME") as string,
     APP_DATA_DIRECTORY_NAME,
   );
-  const TEMPLATES_DIR = path.join(ZHULI_DIR, "templates");
-  const templateDirPath = path.join(TEMPLATES_DIR, templateName);
-  const configPath = path.join(templateDirPath, "config.hbr");
-  const contextPath = path.join(templateDirPath, "context.ts");
+
+  const templateDirPath = path.join(ZHULI_DIR, PRESET_DIR_NAME, presetName);
+  const configPath = path.join(templateDirPath, TASK_FN);
+  const contextPath = path.join(templateDirPath, CONTEXT_FN);
 
   if (!await exists(configPath)) {
     const yikes = Colors.brightRed(`Template '${configPath}' does not exist!`);
@@ -101,7 +105,7 @@ async function zhuli(templateName: string, argsOrObj: string[] | InputParams) {
   const context = {
     cwdName,
     templateDirPath,
-    templateName,
+    presetName,
   };
 
   let pluginContext = null;
@@ -119,7 +123,7 @@ async function zhuli(templateName: string, argsOrObj: string[] | InputParams) {
   var config: TaskNode | null = eval(js);
 
   const main = (config as unknown as TaskNode);
-  main.label = templateName;
+  main.label = presetName;
 
   if (Array.isArray(argsOrObj)) {
     main.args = argsOrObj;

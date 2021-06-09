@@ -25,7 +25,6 @@ const setWriteSyncDepth = (depth: number) => {
     const padBytes = new TextEncoder().encode(pad);
     const newWrite = function(p: Uint8Array){
         const pp = new Uint8Array([...padBytes, ...p]);
-        //Deno.stdout.writeSync(padBytes);
         return originalWriteSync(pp);
     };
     Deno.stdout.writeSync = newWrite;
@@ -34,7 +33,7 @@ const setWriteSyncDepth = (depth: number) => {
 const setOutputDepth = (depth: number) => {
     setConsoleLogDepth(depth);
     setWriteSyncDepth(depth);
-}
+};
 
 export async function doTask(task: TaskNode) {
     if (task.parent == null && isNullOrEmpty(task.label)) {
