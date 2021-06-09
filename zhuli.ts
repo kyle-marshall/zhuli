@@ -1,13 +1,10 @@
 import * as path from "https://deno.land/std@0.97.0/path/mod.ts";
-import { exists as _exists } from "https://deno.land/std@0.97.0/fs/mod.ts";
+import { exists } from "https://deno.land/std@0.97.0/fs/mod.ts";
 import * as Colors from "https://deno.land/std@0.97.0/fmt/colors.ts";
 import Handlebars from "https://cdn.skypack.dev/handlebars@4.7.7";
 import { InputParams, TaskNode } from "./types.d.ts";
 import { doTask } from "./task.ts";
-import { walk as _walk } from "https://deno.land/std@0.97.0/fs/mod.ts";
-
-var exists = _exists;
-var walk = _walk;
+import { walk } from "https://deno.land/std@0.97.0/fs/mod.ts";
 
 const PROGRAM_NAME = "zhuli";
 const APP_DATA_DIRECTORY_NAME = ".zhuli";
