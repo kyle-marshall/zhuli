@@ -31,15 +31,23 @@ const readTemplate = async (templatePath: string, context: unknown) => {
 };
 
 // deno-lint-ignore no-unused-vars
-const forgeFile = async (templatePath: string, destinationPath: string, context: unknown) => {
+const forgeFile = async (
+  templatePath: string,
+  destinationPath: string,
+  context: unknown,
+) => {
   const templateText = await Deno.readTextFile(templatePath);
   const template = Handlebars.compile(templateText);
   const outText = template(context);
   return Deno.writeTextFile(destinationPath, outText);
-}
+};
 
 // deno-lint-ignore no-unused-vars
-const copyDirectoryContents = async (sourceDirPath: string, destDirPath = ".", ignoreRegex = /.hbr$/) => {
+const copyDirectoryContents = async (
+  sourceDirPath: string,
+  destDirPath = ".",
+  ignoreRegex = /.hbr$/,
+) => {
   const n = sourceDirPath.length;
   for await (const entry of walk(sourceDirPath)) {
     if (entry.path.length <= n) continue;
@@ -67,11 +75,19 @@ const exec = async (cmdTokens: string[]) => {
   await p.status();
 };
 
+function tseval (code: string): Promise<any> {
+  return import('data:application/javascript,' + encodeURIComponent(code));
+}
+
 async function zhuli(templateName: string, argsOrObj: string[] | InputParams) {
-  const ZHULI_DIR = path.join(Deno.env.get("HOME") as string, APP_DATA_DIRECTORY_NAME);
+  const ZHULI_DIR = path.join(
+    Deno.env.get("HOME") as string,
+    APP_DATA_DIRECTORY_NAME,
+  );
   const TEMPLATES_DIR = path.join(ZHULI_DIR, "templates");
   const templateDirPath = path.join(TEMPLATES_DIR, templateName);
   const configPath = path.join(templateDirPath, "config.hbr");
+  const contextPath = path.join(templateDirPath, "context.ts");
 
   if (!await exists(configPath)) {
     const yikes = Colors.brightRed(`Template '${configPath}' does not exist!`);
@@ -88,17 +104,26 @@ async function zhuli(templateName: string, argsOrObj: string[] | InputParams) {
     templateName,
   };
 
-  const configRaw = await readTemplate(configPath, context);
+  let pluginContext = null;
+  if (await exists(contextPath)) {
+        const code = `
+        export { context } from "file://${contextPath}";
+    `;
+    const mod = await tseval(code);
+    pluginContext = mod.context;
+  }
 
-  var config: TaskNode | null = null;
-  eval("config = " + configRaw);
+  var _;
+  const js = "_ = " + await readTemplate(configPath, context);
+  Object.assign(window, pluginContext);
+  var config: TaskNode | null = eval(js);
+
   const main = (config as unknown as TaskNode);
   main.label = templateName;
 
   if (Array.isArray(argsOrObj)) {
     main.args = argsOrObj;
-  }
-  else {
+  } else {
     main.input = argsOrObj;
   }
 

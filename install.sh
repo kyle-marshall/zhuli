@@ -1,1 +1,1 @@
-deno install -f --allow-read --allow-write --allow-env --allow-run --unstable zhuli.ts
+deno install -f --allow-read --allow-write --allow-env --allow-net --allow-run --unstable zhuli.ts
