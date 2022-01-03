@@ -74,6 +74,7 @@ async function zhuli(presetName: string, argsOrObj: string[] | InputParams) {
   // eval dark magic, prefixing the object with "_=" makes eval happy,
   // and the entire statement returns an object since a js assignment expression
   // returns the assigned value, e.g. you can do things like: a = b = c = 4
+  // deno-lint-ignore no-var
   var _;
   const js = "_ = " + await readTemplate(configPath, templateContext);
   const main: TaskNode = eval(js);

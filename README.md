@@ -2,21 +2,23 @@
 
 zhuli
 
-If you saw the Legend of Korra, you may remember the charismatic Varrick and his very capable assistant, Zhu Li. At the time, my American ears heard Julie, but anyways, that's the namesake of this tool.
+If you saw the Legend of Korra, you may remember the charismatic Varrick and his very capable assistant, Zhu Li. She is the namesake of this tool.
+
+---
+
+Note: install instructions are located in the Appendix section.
 
 ---
 
 What is this this tool?
 
-Well, it's pretty flexible. It, or she, can set up projects for you, do a series of tasks based on some inputs, that sort of thing.
+It's a flexible task running tool. One use might be to set up project templates for you. Generally speaking, the tool can execute a tree of tasks and collect user input from interactive promps or from CLI arguments.
 
-`zhuli` is a command line tool which will dynamically load and execute your custom "presets". All you have to do is create a directory with one file in it and then zhuli can do a new thing. Zhuli, do the thing!
-
-Code scaffolding was the original intent of this project, but the possibilities are a lot more general.
+The `zhuli` executable runs your task trees ("presets") which you save in a particular place. To define a preset, you create a new directory with at least one special file in it and then zhuli will be able to find it and do a new thing.
 
 Here's how it works.
 - `zhuli <preset-name>` will look for files within the directory `~.zhuli/presets/<preset-name>`
-- the one required file in your preset directory is `task.hbr`, which defines your task tree. This funny file should contain a simple javascript object which is compatible with the following interface. The file isn't valid JS by itself, since this object is sort of floating without being assigned to anything, but don't let that trouble you.
+- the one required file in your preset directory is `task.hbr`, which defines your task tree. This file should contain a javascript object which is compatible with the following interface. The file isn't valid JS by itself, since the object is not being assigned to anything, but don't let that trouble you.
 This is the "shape" of that object:
 ```typescript
 // all properties are optional
@@ -31,7 +33,7 @@ export interface TaskNode {
     fn?: () => Promise<void>; // the task's "action", can access this.input property prepared by zhuli.
 }
 ```
-Here's an example of a very simple `task.hbr` file:
+Here's an example of a simple `task.hbr` file:
 ```js
 {
     description: "generate nanoid",
@@ -74,7 +76,7 @@ km@km-AERO-15-KC:~/dev/deno/zhuli$
 
 Okay, this particular preset isnt very useful. Let's see one more example of how zhuli can also scaffold a project.
 
-This time, in reverse order.
+This time, let's see the output first.
 
 The output:
 
@@ -192,7 +194,7 @@ This tool uses the deno javascript runtime, so go grab it if you are interested.
 https://deno.land/
 <br>
 
-After you have deno installed, you can install zhuli by running the ./install.sh script from this repo. You may need to rename it to .ps1 on windows, but please note I've never tested zhuli on windows. This will not create your ~.zhuli directory for you. You have to create that directory and ~.zhuli/presets yourself. Someday zhuli might help you out there, but not today.
+After you have deno installed, you can install zhuli by running the ./install.sh script from this repo. You may need to rename it to .ps1 on windows, but please note I've never tested zhuli on windows. This will not create your ~.zhuli directory for you. You have to create that directory and the ~.zhuli/presets directory yourself. Someday zhuli might help you out there, but not today.
 
 <br>
 Disclaimer: you give zhuli the ability to do a lot of stuff when you install it. You have the power to mess up your file system and more. NEVER run other people's presets without carefull inspecting the code, including any modules that code may import. Ideally you should only write your own tasks.
